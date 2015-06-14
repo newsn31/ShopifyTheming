@@ -1,0 +1,29 @@
+<!-- snippets/collection-list-item -->
+{% comment %}
+
+  This snippet is used to showcase each collection during the loop,
+  'for product in collection.products' in list-collections.liquid.
+
+{% endcomment %}
+{% capture collection_title %}{{ collection.title | escape }}{% endcapture %}
+{% assign product_rows = settings.collection_products_per_page %}
+{% assign products_per_row = settings.collection_products_per_row %}
+{% assign products_per_page = product_rows | times: products_per_row %}
+
+<h1 class="text-center">{{ collection_title }}</h1>
+
+<div class="grid">
+  {% for product in collection.products limit: products_per_row %}
+    {% case products_per_row %}
+      {% when '3' %}
+        {% assign grid_item_width = 'medium--one-third large--one-third' %}
+      {% when '4' %}
+        {% assign grid_item_width = 'medium-down--one-half large--one-quarter' %}
+      {% when '5' %}
+        {% assign grid_item_width = 'medium-down--one-half large--one-fifth' %}
+    {% endcase %}
+    {% include 'product-grid-item' %}
+  {% endfor %}
+</div>
+
+<p class="text-center"><a href="{{ collection.url }}" title="{{ 'collections.general.link_title' | t: title: collection_title }}">{{ 'collections.sorting.all_of_collection' | t: collection: collection.title }} <span class="icon icon-arrow-right" aria-hidden="true"></span></a></p>

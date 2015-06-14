@@ -1,0 +1,76 @@
+{% comment %}
+
+  For more information on collection tags:
+    - http://docs.shopify.com/themes/liquid-variables/collection
+
+{% endcomment %}
+
+{% assign product_rows = settings.collection_products_per_page %}
+{% assign products_per_row = settings.collection_products_per_row %}
+{% assign products_per_page = product_rows | times: products_per_row %}
+
+{% paginate collection.products by products_per_page %}
+
+<div class="grid--full">
+
+  {% include 'collection-header' %}
+
+  {% comment %}
+    Use class grid-uniform to have evenly sized columns clear
+    each other properly at each breakpoint.
+  {% endcomment %}
+  <div class="grid-uniform product-grid">
+
+    {% comment %}
+      Loop through our products in the current collection.
+      See the snippet 'product-grid-item' for the layout.
+    {% endcomment %}
+
+    {% for product in collection.products %}
+
+      {% case products_per_row %}
+        {% when '3' %}
+          {% assign grid_item_width = 'medium--one-third large--one-third' %}
+        {% when '4' %}
+          {% assign grid_item_width = 'medium-down--one-half large--one-quarter' %}
+        {% when '5' %}
+          {% assign grid_item_width = 'medium-down--one-half large--one-fifth' %}
+      {% endcase %}
+      {% include 'product-grid-item' %}
+
+    {% else %}
+      {% if collection.handle == 'all' %}
+
+        {% comment %}
+          Add default products to help with onboarding for collections/all only
+        {% endcomment %}
+
+        {% unless emptyState %}
+          {{ 'theme-onboarding.css' | global_asset_url | stylesheet_tag }}
+          {% assign emptyState = true %}
+        {% endunless %}
+
+        {% include 'onboarding-empty-collection' %}
+
+      {% else %}
+
+        {% comment %}
+          If collection exists but is empty, display message
+        {% endcomment %}
+        <div class="grid-item">
+          <p>{{ 'collections.general.no_matches' | t }}</p>
+        </div>
+
+      {% endif %}
+    {% endfor %}
+
+  </div>
+
+  {% if paginate.pages > 1 %}
+    <div class="text-center">
+      {% include 'pagination-custom' %}
+    </div>
+  {% endif %}
+  {% endpaginate %}
+
+</div>

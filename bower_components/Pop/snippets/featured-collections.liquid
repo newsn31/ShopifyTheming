@@ -1,0 +1,95 @@
+<div class="grid-uniform text-center collection-grid">
+
+  {% assign index = 0 %}
+
+  {% comment %}
+    The `limit` variable is the amount of collections to show in `auto` mode.
+    You can change that value if you wish to feature more collections.
+  {% endcomment %}
+
+  {% assign limit = 6 %}
+
+  {% comment %}
+    We might skip over 2 collections: `frontpage` and `all`, 
+    when iterating through the store collections in `auto` mode.
+  {% endcomment %}
+  {% assign query = limit | plus: 2 %}
+
+  {% if settings.home_featured_collections_sort == 'manual' %}
+    {% for i in (1..6) %}
+      {% assign collection_setting = 'collection_' | append:i %}
+      {% if settings[collection_setting] != blank %}
+        {% assign index = index | plus: 1 %}
+      {% endif %}
+    {% endfor %}
+  {% else %}
+    {% for collection in collections limit: query %}
+      {% if index == limit %}
+        {% break %}
+      {% endif %}
+      {% unless collection.handle == 'frontpage' or collection.handle == 'all' %}
+        {% assign index = index | plus: 1 %}
+      {% endunless %}
+    {% endfor %}
+  {% endif %}
+
+  {% case index %}
+    {% when 1 %}
+      {% assign featured_collection_width = 'one-whole' %}
+      {% assign featured_collection_size = 'large' %}
+    {% when 2 %}
+      {% assign featured_collection_width = 'small--one-whole medium--one-half large--one-half' %}
+      {% assign featured_collection_size = 'large' %}
+    {% when 3 %}
+      {% assign featured_collection_width = 'small--one-whole one-third' %}
+    {% when 4 %}
+      {% assign featured_collection_width = 'small--one-whole medium--one-half large--one-half' %}
+    {% when 5 %}
+      {% assign featured_collection_width = 'small--one-whole medium--one-third large--one-third' %}
+    {% when 6 %}
+      {% assign featured_collection_width = 'small--one-whole medium--one-third large--one-half' %}
+    {% else %}
+      {% assign dividable_by_3 = index | modulo: 3 %}
+      {% assign dividable_by_2 = index | modulo: 2 %}
+      {% if dividable_by_3 == 0 %}
+        {% assign featured_collection_width = 'small--one-whole medium--one-third large--one-third' %}
+      {% elsif dividable_by_2 == 0 %}
+        {% assign featured_collection_width = 'small--one-whole medium--one-third large--one-half' %}
+      {% else %}
+        {% assign featured_collection_width = 'small--one-whole medium--one-third large--one-third' %}
+      {% endif %}
+  {% endcase %}
+
+  {% if settings.home_featured_collections_sort == 'manual' %}
+    {% for i in (1..6)  %}
+      {% assign collection_setting = 'collection_' | append:i %}
+      {% if settings[collection_setting] != blank %}
+        {% assign featured = settings[collection_setting] %}
+        {% include 'featured-collection' %}
+      {% endif %}
+    {% endfor %}
+  {% else %}
+    {% assign index = 0 %}
+    {% for collection in collections limit: query %}
+      {% if index == limit %}
+        {% break %}
+      {% endif %}
+      {% unless collection.handle == 'frontpage' or collection.handle == 'all' %}
+        {% assign index = index | plus: 1 %}
+        {% assign featured = collection.handle %}
+        {% include 'featured-collection' %}
+      {% endunless %}
+    {% endfor %}
+  {% endif %}
+
+  {% comment %}
+    Add default collections to help with onboarding
+  {% endcomment %}
+  {% if index == 0 %}
+    {% unless emptyState %}
+      {{ 'theme-onboarding.css' | global_asset_url | stylesheet_tag }}
+      {% assign emptyState = true %}
+    {% endunless %}
+    {% include 'onboarding-featured-collections' %}
+  {% endif %}
+</div>

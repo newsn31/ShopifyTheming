@@ -1,0 +1,96 @@
+<!-- snippets/product-grid-item.liquid -->
+{% comment %}
+
+  This snippet is used to showcase each product during the loop,
+  'for product in collection.products' in collection.liquid.
+
+  A liquid variable (grid_item_width) is set just before the this
+  snippet is included to change the size of the container.
+  Once the variable is set on a page, all future instances of this
+  snippet will use that width. Overwrite the variable to adjust this.
+
+  Example
+    - assign grid_item_width = 'large--one-quarter medium--one-half'
+
+{% endcomment %}
+
+{% comment %}
+  Set the default grid_item_width if no variable is set
+{% endcomment %}
+{% unless grid_item_width %}
+  {% assign grid_item_width = 'large--one-third medium--one-half' %}
+{% endunless %}
+
+{% comment %}
+  Check if the product is on sale and set a variable to be used below.
+{% endcomment %}
+{% assign on_sale = false %}
+{% if product.compare_at_price > product.price %}
+  {% assign on_sale = true %}
+{% endif %}
+
+{% comment %}
+  Check if the product is sold out and set a variable to be used below.
+{% endcomment %}
+{% assign sold_out = true %}
+{% if product.available  %}
+  {% assign sold_out = false %}
+{% endif %}
+
+{% comment %}
+  Check if merchant wants product details to display on hover.
+{% endcomment %}
+{% assign details_on_hover = false %}
+{% if settings.product_details_display_method == 'hover' %}
+  {% assign details_on_hover = true %}
+{% endif %}
+
+{% comment %}
+  Set a class for sold-out and on-sale items
+{% endcomment %}
+<div class="grid-item {{ grid_item_width }}{% if sold_out %} sold-out{% endif %}{% if on_sale %} on-sale{% endif %}{% if forloop.last %} last{% endif %}">
+  <div class="product-wrapper">
+    <a href="{{ product.url | within: collection }}" class="product">
+      <img src="{{ product.featured_image.src | img_url: 'large' }}" alt="{{ product.featured_image.alt | escape }}" class="product__img">
+      <div class="product__cover"></div>
+      {% comment %}
+        Link to your product with the 'within: collection' filter for the link to be aware of the collection.
+        This allows you to create collection-based navigation on the product page.
+
+        Results of using 'within: collection':
+        - Instead of a URL with /products/product-handle
+          you would get /collections/collection-handle/products/product-handle
+
+        For more info on navigation within a collection
+          - http://docs.shopify.com/support/your-store/collections/how-to-navigate-within-a-collection
+
+      {% endcomment %}
+
+      <div class="product__details text-center">
+        <div class="table-contain">
+          <div class="table-contain__inner">
+            <p class="h4 product__title">{{ product.title }}</p>
+            <p class="product__price">
+              {% assign price = product.price | money %}
+              {% if product.price_varies %}{{ 'products.general.from_text_html' | t: price: price }}{% else %}{{ price }}{% endif %}
+              {% if on_sale %}
+                {% assign original_price =  product.compare_at_price | money %}
+                <del>{{ original_price }}</del>
+              {% endif %}
+            </p>
+          </div>
+        </div>
+      </div>
+    {% if sold_out %}
+      <div class="sold-out-tag text-center">
+        <span class="tag">{{ 'products.product.sold_out' | t }}</span>
+      </div>
+    {% endif %}
+    {% if on_sale and sold_out != true %}
+      <div class="on-sale-tag text-center">
+        <span class="tag">{{ 'products.product.on_sale' | t }}</span>
+      </div>
+    {% endif %}
+    </a>
+  </div>
+</div>

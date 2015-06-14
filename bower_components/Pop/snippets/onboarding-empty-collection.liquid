@@ -1,0 +1,30 @@
+<!-- snippets/onboarding-empty-collection.liquid -->
+<div class="grid--full helper-section">
+  <div class="helper-note">
+    <span class="helper-icon"></span>
+    <h3>{{ 'collections.onboarding.modal_title' | t }}</h3>
+    <p>{{ 'collections.onboarding.no_products_html' | t }}</p>
+    <p><a href="/admin/products/new" class="admin-btn-primary">{{ 'collections.onboarding.add_product' | t }}</a></p>
+  </div>
+
+  <div class="helper-content">
+    {% assign index = 1 %}
+    {% for i in (1..4) %}
+      {% case i %}
+        {% when 3 %}
+          {% assign index = 1 %}
+        {% when 4 %}
+          {% assign index = 2 %}
+      {% endcase %}
+      <div class="grid-item one-half large--one-quarter text-center">
+        <a href="/admin/products" class="grid-link__image">
+          {% capture imageUrl %}//cdn.shopify.com/s/images/themes/product-{{ index }}.png{% endcapture %}
+          {{ imageUrl | img_tag }}
+        </a>
+        <p class="h6"><a href="/admin/products">{{ 'home_page.onboarding.product_title' | t }}</a></p>
+        <p class="h6">$19.99</p>
+      </div>
+      {% assign index = index | plus: 1 %}
+    {% endfor %}
+  </div>
+</div>
